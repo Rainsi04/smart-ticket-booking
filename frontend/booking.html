@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SmartTicket - Book Tickets</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Additional fixes for seat layout */
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .seat {
+            aspect-ratio: 1 / 0.9;
+            background: #2a2a2a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+
+        .seat.available:hover {
+            background: #4ecdc4;
+            transform: scale(1.05);
+        }
+
+        .seat.selected {
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
+        }
+
+        .seat.recommended {
+            background: #4ecdc4;
+            color: #0a0a0a;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+
+        .seat.occupied {
+            background: #3a3a3a;
+            cursor: not-allowed;
+            opacity: 0.4;
+            text-decoration: line-through;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        .seat-section {
+            margin-bottom: 25px;
+            background: #0f0f0f;
+            border-radius: 16px;
+            padding: 15px;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid;
+        }
+
+        .section-label.front { border-left-color: #4ecdc4; color: #4ecdc4; }
+        .section-label.middle { border-left-color: #ffb347; color: #ffb347; }
+        .section-label.back { border-left-color: #ff6b6b; color: #ff6b6b; }
+        .section-label.recliner { border-left-color: #e9c46a; color: #e9c46a; }
+
+        .front-seat { background: #1e3a3a; }
+        .middle-seat { background: #3a2e1e; }
+        .back-seat { background: #3a2a2a; }
+        .recliner-seat { 
+            background: linear-gradient(135deg, #3a351e, #2a2516);
+            border: 1px solid #e9c46a;
+            color: #e9c46a;
+        }
+
+        @media (max-width: 768px) {
+            .seats-grid {
+                gap: 4px;
+            }
+            .seat {
+                font-size: 8px;
+            }
+        }
+
+        /* Modal Popup Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+            margin: 10% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease;
+            border: 1px solid rgba(78, 205, 196, 0.3);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 25px 30px 15px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+
+        .close-modal {
+            font-size: 32px;
+            font-weight: bold;
+            color: #888;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: #ff6b6b;
+        }
+
+        .modal-body {
+            padding: 25px 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4ecdc4;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+        }
+
+        .input-group input.error {
+            border-color: #ff6b6b;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .booking-summary-modal {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 3px solid #4ecdc4;
+        }
+
+        .booking-summary-modal p {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .booking-summary-modal strong {
+            color: #fff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-modal-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #2a2a2a;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #3a3a3a;
+        }
+
+        .btn-modal-confirm {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 12px;
+            color: #0a0a0a;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn-modal-confirm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .total-amount-modal {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">SmartTicket</div>
+            <nav></nav>
+        </header>
+
+        <main class="booking-main">
+            <div class="movie-info-header" id="movieInfoHeader">
+                <!-- Movie details will be injected here -->
+            </div>
+
+            <div class="booking-layout">
+                <!-- Left Column: Seat Selection -->
+                <div class="seat-selection">
+                    <div class="cinema-selector">
+                        <h3>Select Location</h3>
+                        <div class="location-fields">
+                            <div class="preference-group">
+                                <label for="citySelect">City</label>
+                                <select id="citySelect">
+                                    <option value="">Choose city...</option>
+                                </select>
+                            </div>
+                            <div class="preference-group">
+                                <label for="cinemaSelect">Cinema</label>
+                                <select id="cinemaSelect" disabled>
+                                    <option value="">Choose cinema...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p id="cinemaAddress" class="cinema-address"></p>
+                    </div>
+
+                    <div class="showtime-selector">
+                        <h3>Select Showtime</h3>
+                        <div class="showtimes" id="showtimes">
+                            <button class="showtime-btn" data-time="12:00 PM">12:00 PM</button>
+                            <button class="showtime-btn" data-time="3:30 PM">3:30 PM</button>
+                            <button class="showtime-btn" data-time="7:00 PM">7:00 PM</button>
+                            <button class="showtime-btn" data-time="10:30 PM">10:30 PM</button>
+                        </div>
+                    </div>
+
+                    <div class="screen-container">
+                        <div class="screen">SCREEN</div>
+                    </div>
+
+                    <div class="seating-sections" id="seatingSections">
+                        <!-- Seats will be generated here -->
+                    </div>
+
+                    <div class="seat-legend">
+                        <span><span class="seat available" style="display: inline-block; width: 20px; height: 20px;"></span> Available</span>
+                        <span><span class="seat recommended" style="display: inline-block; width: 20px; height: 20px;"></span> Recommended</span>
+                        <span><span class="seat selected" style="display: inline-block; width: 20px; height: 20px;"></span> Selected</span>
+                        <span><span class="seat occupied" style="display: inline-block; width: 20px; height: 20px;"></span> Occupied</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Booking Summary & Preferences -->
+                <div class="booking-summary">
+                    <h3>SmartRecommendation</h3>
+                    
+                    <div class="preference-group">
+                        <label>Budget (total) - ₹</label>
+                        <input type="number" id="budget" value="500" step="50">
+                    </div>
+                    
+                    <div class="preference-group">
+                        <label>Number of Seats</label>
+                        <input type="number" id="seatCount" value="2" min="1" max="10">
+                    </div>
+                    
+                    <div class="preference-group">
+                        <label>Seat Preference</label>
+                        <select id="seatPreference">
+                            <option value="front">Front</option>
+                            <option value="middle" selected>Middle</option>
+                            <option value="back">Back</option>
+                            <option value="recliner">Recliner</option>
+                        </select>
+                    </div>
+                    
+                    <button id="findBestBtn" class="btn-primary">Find Best Seats</button>
+                    
+                    <div class="summary-details">
+                        <h3>Booking Summary</h3>
+                        <p>City: <span id="summaryCity">-</span></p>
+                        <p>Cinema: <span id="summaryCinema">-</span></p>
+                        <p>Showtime: <span id="summaryShowtime">-</span></p>
+                        <p>Seats: <span id="summarySeats">None selected</span></p>
+                        <p>Total: ₹<span id="summaryTotal">0</span></p>
+                    </div>
+                    
+                    <button id="confirmBookingBtn" class="btn-confirm" disabled>Confirm Booking</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Popup for Name and Email -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎟️ Complete Your Booking</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="booking-summary-modal" id="modalBookingSummary">
+                    <!-- Dynamic booking summary will appear here -->
+                </div>
+                
+                <p id="loggedInNotice" class="logged-in-notice" hidden></p>
+
+                <div id="guestFields">
+                    <div class="input-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="customerName" placeholder="Enter your full name" autocomplete="name">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Email Address *</label>
+                        <input type="email" id="customerEmail" placeholder="Enter your email address" autocomplete="email">
+                    </div>
+
+                    <p class="auth-hint">
+                        <a href="login.html?return=booking.html">Log in</a> or
+                        <a href="register.html">sign up</a> to save bookings to your account.
+                    </p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn-modal-cancel" id="cancelBookingBtn">Cancel</button>
+                    <button class="btn-modal-confirm" id="confirmBookingModalBtn">Confirm & Pay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="booking.js"></script>
+</body>
+</html>

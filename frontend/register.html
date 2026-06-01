@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTicket - Sign Up</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">SmartTicket</div>
+            <nav></nav>
+        </header>
+
+        <main class="auth-page">
+            <div class="auth-card">
+                <h1>Create account</h1>
+                <p class="auth-subtitle">Save your bookings and access them anytime.</p>
+
+                <form id="registerForm" class="auth-form">
+                    <div class="input-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="Your name" required autocomplete="name">
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
+                    </div>
+                    <p id="registerError" class="auth-error" hidden></p>
+                    <button type="submit" class="btn-primary btn-full">Sign Up</button>
+                </form>
+
+                <p class="auth-footer">
+                    Already have an account? <a href="login.html">Log in</a>
+                </p>
+            </div>
+        </main>
+    </div>
+    <script src="auth.js"></script>
+    <script src="register.js"></script>
+</body>
+</html>

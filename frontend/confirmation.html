@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTicket - Booking Confirmed</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Additional styles specific to confirmation page */
+        .confirmation-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0a0a 0%, #0f0f0f 100%);
+            padding: 20px;
+        }
+
+        .confirmation-card {
+            background: linear-gradient(145deg, #111111, #0c0c0c);
+            border-radius: 32px;
+            padding: 48px 40px;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checkmark-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4ecdc4, #ff6b6b);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: scaleIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .checkmark-circle {
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .confirmation-card h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .confirmation-card > p {
+            color: #888;
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .ticket-details {
+            background: linear-gradient(135deg, #0a0a0a, #080808);
+            border-radius: 24px;
+            padding: 28px;
+            margin: 28px 0;
+            text-align: left;
+            border: 1px solid #202020;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-details::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4ecdc4, #ff6b6b, #4ecdc4);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4ecdc4;
+            min-width: 100px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 500;
+            color: #fff;
+            text-align: right;
+            word-break: break-word;
+            max-width: 60%;
+        }
+
+        .movie-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .movie-genre {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .total-amount {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        @media (max-width: 480px) {
+            .confirmation-card {
+                padding: 32px 24px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .detail-value {
+                text-align: left;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="padding-top: 20px;">
+        <header>
+            <div class="logo">SmartTicket</div>
+            <nav></nav>
+        </header>
+    </div>
+    <div class="container confirmation-container">
+        <div class="confirmation-card">
+            <div class="checkmark-circle">✓</div>
+            <h1>Booking Confirmed!</h1>
+            <p>Your tickets are ready. Enjoy the show!</p>
+            
+            <div class="ticket-details" id="ticketDetails">
+                <!-- Confirmation details will be injected here -->
+            </div>
+
+            <div class="confirmation-actions" id="confirmationActions">
+                <a href="index.html" class="btn-secondary">More Movies</a>
+                <a href="my-bookings.html" class="btn-primary" id="myBookingsLink" style="display: none;">My Bookings</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="auth.js"></script>
+    <script src="confirmation.js"></script>
+</body>
+</html>
